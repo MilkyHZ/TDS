@@ -35,7 +35,7 @@ public class RocketSpawner : MonoBehaviour
 
     public Vector3 GetDirection(int index)
     {
-        float angleSpacing = 380 / _rocketCount;
+        float angleSpacing = 360 / _rocketCount;
         float firstOffset = angleSpacing / 2f;
 
         float currentAngle = firstOffset + (index * angleSpacing);
