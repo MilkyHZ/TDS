@@ -10,7 +10,7 @@ This repository contains the source code and implementation for our course proje
 ## Setup & Installation
 1. **Clone the Repository:**
    ```bash
-   git clone <YOUR_REPOSITORY_LINK>
+   git clone <https://github.com/MilkyHZ/TDS.git>
    ```
 2. **Open Project:** Launch the root folder in your Game Engine/IDE.
 3. **Run:** Locate the main scene or entry file and press **Play**.
