@@ -25,36 +25,33 @@ public abstract class BaseTurret : MonoBehaviour
     [SerializeField]
     private float _fireInterval;
 
-    private Transform _target;
+    protected CreatureBehaviour _target;
     private Vector3 _dir;
     protected float _dist;
     private float _cooldownTimer;
-
     protected float _alignmentDot;
+    protected bool _targetFollow = true;
 
-    public void Start()
+    public virtual void Start()
     {
-        _target = GameObject.FindWithTag("Player").transform;
-
         if (_detection != null)
         {
             _rangeRend = _detection.GetComponent<LineRenderer>();
             _rangeRend.useWorldSpace = false;
         }
 
-        Invoke(nameof(DelayedInitVisual), 0.01f);
-    }
-
-    private void DelayedInitVisual()
-    {
         InitVisual();
     }
 
     public virtual void Update()
     {
-        if (FinishZone.IsGameWon) return;
+        if (HealthManager.I.CurrentHp <= 0) return;
 
-        _dist = Vector3.Distance(transform.position, _target.position);
+        _target = FindNearestTarget();
+
+        if (_target == null) return;
+
+        _dist = Vector3.Distance(transform.position, _target.transform.position);
 
         if (_cooldownTimer > 0)
         {
@@ -63,7 +60,12 @@ public abstract class BaseTurret : MonoBehaviour
 
         if (IsTargetInDetectionZone())
         {
-            RotateTowards();
+
+            if (_targetFollow)
+            {
+                RotateTowards(); 
+            }
+
             AlignHead();
 
             if (_cooldownTimer <= 0 && CanFireWeapon())
@@ -78,7 +80,7 @@ public abstract class BaseTurret : MonoBehaviour
     protected abstract void FireWeapon();
     protected abstract bool IsTargetInDetectionZone();
     protected abstract void InitVisual();
-
+    
     private void AlignHead()
     {
         if (_head == null) return;
@@ -87,7 +89,7 @@ public abstract class BaseTurret : MonoBehaviour
         flatForward.y = 0;
         flatForward.Normalize();
 
-        Vector3 flatTargetDir = _target.position - _head.transform.position;
+        Vector3 flatTargetDir = _target.transform.position - _head.transform.position;
         flatTargetDir.y = 0;
         flatTargetDir.Normalize();
 
@@ -96,7 +98,7 @@ public abstract class BaseTurret : MonoBehaviour
 
     protected void RotateTowards()
     {
-        _dir = _target.position - _head.transform.position;
+        _dir = _target.transform.position - _head.transform.position;
         _dir.y = 0;
 
         if (_dir == Vector3.zero) return;
@@ -114,7 +116,7 @@ public abstract class BaseTurret : MonoBehaviour
     protected bool IsTargetInCone()
     {
         Vector3 flatTurretPos = new(transform.position.x, 0, transform.position.z);
-        Vector3 flatTargetPos = new(_target.position.x, 0, _target.position.z);
+        Vector3 flatTargetPos = new(_target.transform.position.x, 0, _target.transform.position.z);
         float flatDist = Vector3.Distance(flatTurretPos, flatTargetPos);
 
         if (flatDist > _range) return false;
@@ -127,6 +129,48 @@ public abstract class BaseTurret : MonoBehaviour
         float targetAngle = Vector3.Angle(flatHeadForward, targetDir.normalized);
 
         return targetAngle <= _angle / 2f;
+    }
+
+    private CreatureBehaviour FindNearestTarget()
+    {
+        CreatureBehaviour[] allCreatures = FindObjectsByType<CreatureBehaviour>(FindObjectsSortMode.None);
+        CreatureBehaviour closestValid = null;
+        float shortestDistance = _range;
+
+        CreatureBehaviour originalTarget = _target;
+
+        if (originalTarget == null || originalTarget.gameObject == null)
+        {
+            originalTarget = null;
+        }
+
+        foreach (CreatureBehaviour creature in allCreatures)
+        {
+            if (creature == null) continue;
+
+            _target = creature;
+            float evaluatedDist = Vector3.Distance(transform.position, creature.transform.position);
+
+            if (IsTargetInDetectionZone())
+            {
+                if (evaluatedDist < shortestDistance)
+                {
+                    shortestDistance = evaluatedDist;
+                    closestValid = creature;
+                }
+            }
+        }
+
+        if (closestValid == null)
+        {
+            _target = originalTarget;
+        }
+        else
+        {
+            _target = closestValid;
+        }
+
+        return closestValid;
     }
 
     #region Draw Visual

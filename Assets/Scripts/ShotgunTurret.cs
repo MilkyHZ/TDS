@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class ShotgunTurret : BaseTurret
 {
+    [Header("Shotgun Settings")]
     [SerializeField]
     private int _bulletCount = 8;
     [SerializeField]

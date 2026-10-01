@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class TurretBulletBehaviour : MonoBehaviour
 {
@@ -12,33 +11,48 @@ public class TurretBulletBehaviour : MonoBehaviour
     }
     [SerializeField]
     private float _killRadius = 0.8f;
-    [SerializeField]
+    public float KillRadius
+    {
+        get { return _killRadius; }
+        set { _killRadius = value; }
+    }
     private float _lifeTime = 4f;
 
-    private Transform _target;
-
-    private void Start()
-    {
-        GameObject target = GameObject.FindWithTag("Player");
-        if (target != null) _target = target.transform;
-
-        Destroy(gameObject, _lifeTime);
-    }
+    private void Start() => Destroy(gameObject, _lifeTime);
 
     private void Update()
     {
-        transform.Translate(Vector3.forward * (_speed * Time.deltaTime), Space.Self);
+        transform.Translate(Vector3.forward * (_speed * Time.deltaTime));
 
-        if (_target == null) return;
-
-        Vector3 bulletFlat = new (transform.position.x, 0, transform.position.z);
-        Vector3 targetFlat = new (_target.position.x, 0, _target.position.z);
-
-        float distToPlayer = Vector3.Distance(bulletFlat, targetFlat);
-        if (distToPlayer <= _killRadius)
-        {
-            KillPlayer();
-        }
+        CreatureBehaviour hitCreature = CheckNearestEnemy();
+        if (hitCreature == null) return;
+        
+        KillCreature(hitCreature);
     }
-    private void KillPlayer() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+    private CreatureBehaviour CheckNearestEnemy() 
+    {
+        Vector3 bulletFlat = new(transform.position.x, 0, transform.position.z);
+
+        CreatureBehaviour[] allCreatures = Object.FindObjectsByType<CreatureBehaviour>(FindObjectsSortMode.None);
+
+        foreach (CreatureBehaviour creature in allCreatures) 
+        {
+            Vector3 targetFlat = new(creature.transform.position.x, 0, creature.transform.position.z);
+            float dist = Vector3.Distance(bulletFlat, targetFlat);
+
+            if (dist <= _killRadius)
+            {
+                return creature;
+            }
+        }
+        return null;
+    }
+
+    private void KillCreature(CreatureBehaviour hit) 
+    {
+        hit.Die();
+        if (_lifeTime > 0)
+            Destroy(gameObject);
+    }
 }

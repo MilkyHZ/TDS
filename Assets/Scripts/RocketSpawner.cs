@@ -32,7 +32,7 @@ public class RocketSpawner : MonoBehaviour
             rocket.SetDirection(GetDirection(i));
         }
     }
-
+     
     public Vector3 GetDirection(int index)
     {
         float angleSpacing = 360 / _rocketCount;
