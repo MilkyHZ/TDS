@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField]
-    private float speed;
+    private float _speed;
 
     private void Update()
     {
@@ -15,6 +15,6 @@ public class PlayerMovement : MonoBehaviour
     private void Move(Vector3 dir) 
     {
         dir.Normalize();
-        transform.position += dir * speed * Time.deltaTime;
+        transform.position += dir * _speed * Time.deltaTime;
     }
 }

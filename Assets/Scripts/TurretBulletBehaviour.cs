@@ -3,7 +3,7 @@ using UnityEngine;
 public class TurretBulletBehaviour : MonoBehaviour
 {
     [SerializeField] 
-    private float _speed = 15f;
+    protected float _speed = 15f;
     public float Speed 
     {
         get { return _speed; }
@@ -20,7 +20,7 @@ public class TurretBulletBehaviour : MonoBehaviour
 
     private void Start() => Destroy(gameObject, _lifeTime);
 
-    private void Update()
+    protected virtual void Update()
     {
         transform.Translate(Vector3.forward * (_speed * Time.deltaTime));
 
@@ -34,7 +34,7 @@ public class TurretBulletBehaviour : MonoBehaviour
     {
         Vector3 bulletFlat = new(transform.position.x, 0, transform.position.z);
 
-        CreatureBehaviour[] allCreatures = Object.FindObjectsByType<CreatureBehaviour>(FindObjectsSortMode.None);
+        CreatureBehaviour[] allCreatures = FindObjectsByType<CreatureBehaviour>(FindObjectsSortMode.None);
 
         foreach (CreatureBehaviour creature in allCreatures) 
         {
@@ -49,10 +49,5 @@ public class TurretBulletBehaviour : MonoBehaviour
         return null;
     }
 
-    private void KillCreature(CreatureBehaviour hit) 
-    {
-        hit.Die();
-        if (_lifeTime > 0)
-            Destroy(gameObject);
-    }
+    private void KillCreature(CreatureBehaviour hit) => hit.Die();
 }
