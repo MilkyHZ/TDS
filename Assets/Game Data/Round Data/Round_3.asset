@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f528131dd96afde4f82b9af830aeadae, type: 3}
+  m_Name: Round_3
+  m_EditorClassIdentifier: Assembly-CSharp::RoundData
+  Creatures:
+  - Type: {fileID: 7097944854279728486, guid: 18c94e4ad076a7349b74f701709c33ac, type: 3}
+    SpawnCount: 15
+  - Type: {fileID: 7097944854279728486, guid: ae0f5961e30975c42b6890fe5ada60cd, type: 3}
+    SpawnCount: 5
