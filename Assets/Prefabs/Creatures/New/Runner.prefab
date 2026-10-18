@@ -100,8 +100,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3310465832926876033}
   - component: {fileID: 7097944854279728486}
+  - component: {fileID: -1295017549722582005}
   m_Layer: 0
-  m_Name: Creature_GhostFast
+  m_Name: Runner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -135,6 +136,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 178a6f837847af046a9ee5707400b7be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CreatureBehaviour
-  _radius: 0.5
-  _timeToReachTarget: 4
-  _popupPrefab: {fileID: 3728126850512952709, guid: 972fd390f842158479b837c8346b8005, type: 3}
+  _moveSpeed: 1
+  _impactRadius: 0.5
+  _goldReward: 20
+  _coinPopupPrefab: {fileID: 3728126850512952709, guid: 972fd390f842158479b837c8346b8005, type: 3}
+  _damageDealt: 1
+--- !u!114 &-1295017549722582005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3778328464512747794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd3b5dc785413d640888ba805a91ea5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HasHealth
+  _maxHp: 20
+  _currentHp: 0
