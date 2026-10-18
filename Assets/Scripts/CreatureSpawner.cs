@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CreatureSpawner : MonoBehaviour
@@ -5,35 +7,102 @@ public class CreatureSpawner : MonoBehaviour
     [SerializeField]
     private WalkPath[] _walkPaths;
     [SerializeField]
-    private GameObject[] _creature;
+    private Canvas _worldCanvas;
     [SerializeField]
-    private float _interval;
-    
-    private float _spawnTimer;
+    private Camera _mainCamera;
 
-    private void Start() => _spawnTimer = _interval;
+    [SerializeField]
+    private HealthUI _healthUIPrefab;
 
-    private void Update()
+    [SerializeField]
+    private float _spawnInterval = 0.5f;
+
+    private bool _isSpawning = false;
+    public bool IsSpawning => _isSpawning;
+
+    private int _activeCreatureCount = 0;
+
+    private void Awake()
     {
-        _spawnTimer -= Time.deltaTime;
-        if (_spawnTimer <= 0)
+        if (_mainCamera == null)
         {
-            _spawnTimer = _interval;
-            Spawn();
+            _mainCamera = Camera.main;
         }
     }
 
-    private void Spawn()
+    public void StartSpawning(RoundData roundData)
     {
-        if (_creature == null || _walkPaths == null || _walkPaths.Length == 0) return;
+        if (roundData == null || _isSpawning) return;
+        StartCoroutine(SpawnRoundRoutine(roundData));
+    }
 
-        var randCreature = _creature[Random.Range(0, _creature.Length)];
-        var randPath = _walkPaths[Random.Range(0, _walkPaths.Length)];
+    private IEnumerator SpawnRoundRoutine(RoundData roundData)
+    {
+        _isSpawning = true;
+        _activeCreatureCount = 0;
 
-        var creature = Instantiate(randCreature, randPath.transform);
-        var creatureScript = creature.GetComponent<CreatureBehaviour>();
+        List<CreatureBehaviour> spawnQueue = new();
 
-        var chosenPath = randPath;
-        creatureScript.InitializePath(chosenPath);
+        foreach (var spawnData in roundData.Creatures)
+        {
+            if (spawnData.Type == null) continue;
+
+            for (int i = 0; i < spawnData.SpawnCount; i++)
+            {
+                spawnQueue.Add(spawnData.Type);
+            }
+        }
+
+        for (int i = 0; i < spawnQueue.Count; i++)
+        {
+            var temp = spawnQueue[i];
+            int randIndex = Random.Range(i, spawnQueue.Count);
+            spawnQueue[i] = spawnQueue[randIndex];
+            spawnQueue[randIndex] = temp;
+        }
+
+        foreach (var enemyPrefab in spawnQueue)
+        {
+            if (_walkPaths == null || _walkPaths.Length == 0) break;
+
+            WalkPath chosenPath = _walkPaths[Random.Range(0, _walkPaths.Length)];
+
+            CreatureBehaviour creature = GameplayFactory.I.GetEntity(
+                enemyPrefab,
+                chosenPath.transform.position,
+                Quaternion.identity
+            );
+
+            _activeCreatureCount++;
+            creature.Health.OnDeath += OnCreatureDespawned;
+            creature.InitializePath(chosenPath, _worldCanvas, _mainCamera);
+
+            if (_healthUIPrefab != null && _worldCanvas != null)
+            {
+                Vector2 spawnScreenPos = _mainCamera.WorldToScreenPoint(creature.transform.position);
+
+                HealthUI healthUI = GameplayFactory.I.GetEntity(
+                    _healthUIPrefab,
+                    _worldCanvas.transform,
+                    spawnScreenPos
+                );
+
+                healthUI.SetTarget(creature.Health);
+            }
+
+            yield return new WaitForSeconds(_spawnInterval);
+        }
+
+        _isSpawning = false;
+    }
+
+    private void OnCreatureDespawned()
+    {
+        _activeCreatureCount--;
+
+        if (_activeCreatureCount <= 0 && !_isSpawning)
+        {
+            RoundManager.I.OnRoundCleared();
+        }
     }
 }

@@ -1,29 +1,56 @@
 using UnityEngine;
 
-public class CoinPopup : MonoBehaviour
+public class CoinPopup : HasPool<CoinPopup>
 {
     [SerializeField]
     private float _speed = 3f;
     [SerializeField]
-    private float _distDetection = 1f;
-    
+    private float _distDetection = 10f;
+
+    [SerializeField]
+    private int _amount;
+    public int Amount 
+    {
+        get => _amount;
+        set => _amount = value;
+    }
+
     private RectTransform _rect;
     private RectTransform _targetUI;
+    private float _sqrDistDetection;
 
-    private void Awake() => _rect = GetComponent<RectTransform>();
-
+    private void Awake() 
+    {
+        _rect = GetComponent<RectTransform>();
+        _sqrDistDetection = _distDetection * _distDetection;
+    }
     private void Start() => _targetUI = CoinManager.I.CoinRect;
-    
-    private void Update()
+    private void Update() => MoveAndCheckDistance();
+
+    private void MoveAndCheckDistance()
     {
         _rect.position = Vector3.Lerp(_rect.position, _targetUI.position, _speed * Time.deltaTime);
-
-        var dist = Vector3.Distance(_rect.position, _targetUI.position);
-        if (dist < _distDetection) 
+        if ((_rect.position - _targetUI.position).sqrMagnitude < _sqrDistDetection)
         {
-            CoinManager.I.AddCoin();
-            Destroy(gameObject);    
+            ExecuteCollection();
         }
     }
-    public void SetSpawn(Vector2 pos) => _rect.position = pos;
+
+    private void ExecuteCollection()
+    {
+        CoinManager.I.AddCoin(_amount);
+        _pool.Release(this);
+    }
+
+    public CoinPopup SetSpawn(Vector3 pos)
+    {
+        _rect.position = pos;
+        return this;
+    }
+
+    public CoinPopup SetValue(int value)
+    {
+        _amount = value;
+        return this;
+    }
 }

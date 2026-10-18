@@ -21,9 +21,9 @@ public abstract class BaseTurret : MonoBehaviour
     [SerializeField]
     protected float _angle = 45f;
     [SerializeField]
-    protected float _rotSpeed;
+    protected float _rotSpeed = 5f;
     [SerializeField]
-    private float _fireInterval;
+    protected float _fireInterval = 1f;
 
     protected CreatureBehaviour _target;
     private Vector3 _dir;
@@ -37,7 +37,10 @@ public abstract class BaseTurret : MonoBehaviour
         if (_detection != null)
         {
             _rangeRend = _detection.GetComponent<LineRenderer>();
-            _rangeRend.useWorldSpace = false;
+            if (_rangeRend != null)
+            {
+                _rangeRend.useWorldSpace = false;
+            }
         }
 
         InitVisual();
@@ -45,8 +48,6 @@ public abstract class BaseTurret : MonoBehaviour
 
     public virtual void Update()
     {
-        if (HealthManager.I.CurrentHp <= 0) return;
-
         _target = FindNearestTarget();
 
         if (_target == null) return;
@@ -60,10 +61,9 @@ public abstract class BaseTurret : MonoBehaviour
 
         if (IsTargetInDetectionZone())
         {
-
             if (_targetFollow)
             {
-                RotateTowards(); 
+                RotateTowards();
             }
 
             AlignHead();
@@ -76,11 +76,23 @@ public abstract class BaseTurret : MonoBehaviour
         }
     }
 
+    // --- LEVEL 2 MAX UPGRADE METHOD ---
+    public virtual void UpgradeToLevelMax()
+    {
+        // 1. Boost Base Stats
+        _range *= 1.35f;           // +35% Attack Range
+        _fireInterval *= 0.65f;    // +35% Attack Speed (35% faster interval)
+        _rotSpeed *= 1.5f;         // +50% Rotation speed
+
+        // 2. Redraw Detection Visuals
+        InitVisual();
+    }
+
     protected virtual bool CanFireWeapon() => _alignmentDot >= 0.95f;
     protected abstract void FireWeapon();
     protected abstract bool IsTargetInDetectionZone();
     protected abstract void InitVisual();
-    
+
     private void AlignHead()
     {
         if (_head == null) return;
@@ -98,6 +110,8 @@ public abstract class BaseTurret : MonoBehaviour
 
     protected void RotateTowards()
     {
+        if (_head == null) return;
+
         _dir = _target.transform.position - _head.transform.position;
         _dir.y = 0;
 
@@ -110,11 +124,16 @@ public abstract class BaseTurret : MonoBehaviour
             _rotSpeed * Time.deltaTime
         );
 
-        _detection.transform.rotation = _head.transform.rotation;
+        if (_detection != null)
+        {
+            _detection.transform.rotation = _head.transform.rotation;
+        }
     }
 
     protected bool IsTargetInCone()
     {
+        if (_target == null || _head == null) return false;
+
         Vector3 flatTurretPos = new(transform.position.x, 0, transform.position.z);
         Vector3 flatTargetPos = new(_target.transform.position.x, 0, _target.transform.position.z);
         float flatDist = Vector3.Distance(flatTurretPos, flatTargetPos);
@@ -122,7 +141,6 @@ public abstract class BaseTurret : MonoBehaviour
         if (flatDist > _range) return false;
 
         Vector3 targetDir = flatTargetPos - flatTurretPos;
-
         Vector3 flatHeadForward = _head.forward;
         flatHeadForward.y = 0;
 
@@ -161,15 +179,7 @@ public abstract class BaseTurret : MonoBehaviour
             }
         }
 
-        if (closestValid == null)
-        {
-            _target = originalTarget;
-        }
-        else
-        {
-            _target = closestValid;
-        }
-
+        _target = closestValid != null ? closestValid : originalTarget;
         return closestValid;
     }
 
@@ -177,23 +187,26 @@ public abstract class BaseTurret : MonoBehaviour
 
     protected void DrawCircle()
     {
+        if (_rangeRend == null) return;
+
         _rangeRend.positionCount = _stepCount;
 
         for (int curStep = 0; curStep < _stepCount; curStep++)
         {
             var prog = (float)curStep / _stepCount;
-
             var curRad = Mathf.PI * 2 * prog;
 
             var x = Mathf.Sin(curRad) * _range;
             var z = Mathf.Cos(curRad) * _range;
 
-            _rangeRend.SetPosition(curStep, new(x, 0, z));
+            _rangeRend.SetPosition(curStep, new Vector3(x, 0, z));
         }
     }
 
     protected void DrawCone()
     {
+        if (_rangeRend == null) return;
+
         _rangeRend.positionCount = _stepCount + 2;
         _rangeRend.SetPosition(0, Vector3.zero);
 
@@ -202,13 +215,12 @@ public abstract class BaseTurret : MonoBehaviour
         for (int curStep = 0; curStep <= _stepCount; curStep++)
         {
             var prog = (float)curStep / _stepCount;
-
             var curRad = Mathf.Lerp(-coneRad / 2f, coneRad / 2f, prog);
 
             var x = Mathf.Sin(curRad) * _range;
             var z = Mathf.Cos(curRad) * _range;
 
-            _rangeRend.SetPosition(curStep + 1, new(x, 0, z));
+            _rangeRend.SetPosition(curStep + 1, new Vector3(x, 0, z));
         }
     }
 

@@ -23,6 +23,6 @@ public class SniperTurret : BaseTurret
         var bullet = Instantiate(_bulletPrefab, _firePoint.position, _firePoint.rotation);
         var bulletScript = bullet.GetComponent<TurretBulletBehaviour>();
         bulletScript.Speed = _bulletSpd;
-        bulletScript.KillRadius = _killRadius;
+        bulletScript.HitRadius = _killRadius;
     }
 }
