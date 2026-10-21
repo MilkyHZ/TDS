@@ -103,6 +103,8 @@ public class GameControler : MonoBehaviour
             CoinManager.I.ResetCoins(300);
         }
 
+
+
         ChangeState(new PlayingState());
     }
 }

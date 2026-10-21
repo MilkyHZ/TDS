@@ -5,47 +5,28 @@ using UnityEngine.UI;
 public class RoundUI : MonoBehaviour
 {
     [Header("Round Transition Splash")]
-    [SerializeField] 
-    private float _transitionTime = 2f;
-    [SerializeField] 
-    private GameObject _roundNumberPanel;
-    [SerializeField] 
-    private TextMeshProUGUI _txtRoundStartTitle;
+    [SerializeField] private float _transitionTime = 2f;
+    [SerializeField] private RoundSplashUI _splashUI;
 
     [Header("Wave Info HUD")]
-    [SerializeField] 
-    private TextMeshProUGUI _txtWaveNumber;
-    [SerializeField] 
-    private TextMeshProUGUI _txtTotalEnemiesCount;
+    [SerializeField] private TextMeshProUGUI _txtWaveNumber;
+    [SerializeField] private TextMeshProUGUI _txtTotalEnemiesCount;
 
     [Header("Enemy Preview List Container")]
-    [SerializeField] 
-    private Transform _enemyCardsContainer;
-    [SerializeField] 
-    private EnemyPreviewCard _enemyCardPrefab;
+    [SerializeField] private Transform _enemyCardsContainer;
+    [SerializeField] private EnemyPreviewCard _enemyCardPrefab;
 
     [Header("Controls")]
-    [SerializeField] 
-    private Button _btnNextWave;
+    [SerializeField] private Button _btnNextWave;
 
-    private float _splashEndTime = 0f;
-
-    [SerializeField, ReadOnly]
+    private float _splashTimeRemaining = 0f;
     private bool _isSplashActive = false;
-
     private int _lastBanneredWave = -1;
 
     private void Awake()
     {
-        if (_btnNextWave != null)
-        {
-            _btnNextWave.onClick.AddListener(OnClickNextWave);
-        }
-
-        if (_roundNumberPanel != null)
-        {
-            _roundNumberPanel.SetActive(false);
-        }
+        if (_btnNextWave != null) _btnNextWave.onClick.AddListener(OnClickNextWave);
+        if (_splashUI != null) _splashUI.HideBanner();
     }
 
     private void OnEnable()
@@ -79,31 +60,23 @@ public class RoundUI : MonoBehaviour
 
     private void Update()
     {
-        _isSplashActive = Time.unscaledTime < _splashEndTime;
+        if (!_isSplashActive) return;
 
-        if (_isSplashActive)
+        if (GameControler.I != null && GameControler.I.GetCurrentState() is PlayingState)
         {
-            if (_roundNumberPanel != null && !_roundNumberPanel.activeSelf)
+            _splashTimeRemaining -= Time.unscaledDeltaTime;
+
+            if (_splashTimeRemaining <= 0f)
             {
-                _roundNumberPanel.SetActive(true);
-            }
-        }
-        else
-        {
-            if (_roundNumberPanel != null && _roundNumberPanel.activeSelf)
-            {
-                _roundNumberPanel.SetActive(false);
+                _isSplashActive = false;
+                if (_splashUI != null) _splashUI.HideBanner();
             }
         }
     }
 
     private void UpdateRoundUI(int waveNumber, RoundData roundData)
     {
-        if (_txtWaveNumber != null)
-        {
-            _txtWaveNumber.text = $"WAVE {waveNumber}";
-        }
-
+        if (_txtWaveNumber != null) _txtWaveNumber.text = $"WAVE {waveNumber}";
         if (roundData == null) return;
 
         if (_txtTotalEnemiesCount != null)
@@ -113,10 +86,7 @@ public class RoundUI : MonoBehaviour
 
         if (_enemyCardsContainer != null)
         {
-            foreach (Transform child in _enemyCardsContainer)
-            {
-                Destroy(child.gameObject);
-            }
+            foreach (Transform child in _enemyCardsContainer) Destroy(child.gameObject);
 
             if (_enemyCardPrefab != null && roundData.Creatures != null)
             {
@@ -129,26 +99,19 @@ public class RoundUI : MonoBehaviour
             }
         }
 
-        if (_btnNextWave != null)
-        {
-            _btnNextWave.interactable = !RoundManager.I.IsWaveInProgress;
-        }
+        if (_btnNextWave != null) _btnNextWave.interactable = !RoundManager.I.IsWaveInProgress;
     }
 
     private void TriggerSplashBanner(int waveNumber)
     {
         _lastBanneredWave = waveNumber;
+        _splashTimeRemaining = _transitionTime;
+        _isSplashActive = true;
 
-        if (_roundNumberPanel != null)
+        if (_splashUI != null)
         {
-            if (_txtRoundStartTitle != null)
-            {
-                _txtRoundStartTitle.text = $"WAVE {waveNumber}";
-            }
-
-            _splashEndTime = Time.unscaledTime + _transitionTime;
-
-            _roundNumberPanel.SetActive(true);
+            bool shouldSkipTypewriter = (waveNumber == 1);
+            _splashUI.ShowBanner($"WAVE {waveNumber}", shouldSkipTypewriter);
         }
     }
 

@@ -5,6 +5,9 @@ using UnityEngine;
 public class TurretBulletBehaviour : HasPool<TurretBulletBehaviour>
 {
     [SerializeField]
+    private TrailRenderer _projectileTrail;
+
+    [SerializeField]
     private float _speed = 15f;
     public float Speed
     {
@@ -47,6 +50,13 @@ public class TurretBulletBehaviour : HasPool<TurretBulletBehaviour>
     {
         _currentHits = 0;
         _hitCreatures.Clear();
+
+        if (_projectileTrail != null)
+        {
+            _projectileTrail.gameObject.SetActive(false);
+            _projectileTrail.Clear();
+            _projectileTrail.gameObject.SetActive(true);
+        }
 
         if (_lifeTimerRoutine != null) StopCoroutine(_lifeTimerRoutine);
         _lifeTimerRoutine = StartCoroutine(DespawnRoutine());
