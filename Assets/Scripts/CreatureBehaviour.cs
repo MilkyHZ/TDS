@@ -193,6 +193,8 @@ public class CreatureBehaviour : HasPool<CreatureBehaviour>
     {
         if (currentHp <= 0) return;
 
+        if (AudioManager.I != null) AudioManager.I.PlayEnemyHit();
+
         if (_flashCoroutine != null)
         {
             StopCoroutine(_flashCoroutine);
@@ -275,6 +277,8 @@ public class CreatureBehaviour : HasPool<CreatureBehaviour>
                 popup.SetSpawn(spawnScreenPos).SetValue(_goldReward);
             }
         }
+
+        if (AudioManager.I != null) AudioManager.I.PlayEnemyDeath();
 
         Release(this);
     }

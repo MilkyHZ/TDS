@@ -82,7 +82,11 @@ public class CoinManager : MonoBehaviour
 
     private void ChangeValue() => _timer = 0f;
 
-    public void AddCoin(int amount = 10) => CoinBank += amount;
+    public void AddCoin(int amount = 10)
+    {
+        if (AudioManager.I != null) AudioManager.I.PlayCoinCollect();
+        CoinBank += amount;
+    } 
 
     public bool HasEnoughCoins(int amount) => CoinBank >= amount;
 

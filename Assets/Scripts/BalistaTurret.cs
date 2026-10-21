@@ -36,5 +36,7 @@ public class BallistaTurret : BaseTurret
             bullet.Damage = _damage;
             bullet.PierceAmount = _pierceAmount;
         }
+
+        if (AudioManager.I != null) AudioManager.I.PlayBallistaFire();
     }
 }

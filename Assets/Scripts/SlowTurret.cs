@@ -12,7 +12,7 @@ public class SlowTurret : BaseTurret
     [SerializeField] 
     private float _slowMultiplier = 0.5f;
     [SerializeField] 
-    private float _slowDuration = 2.0f;
+    private float _slowDuration = 1.0f;
 
     protected override void InitVisual() => DrawCircle();
 
@@ -23,7 +23,6 @@ public class SlowTurret : BaseTurret
     public override void UpgradeToLevelMax()
     {
         base.UpgradeToLevelMax();
-        _damage += 1;
         _slowDuration += 1.0f;
     }
 
@@ -57,5 +56,7 @@ public class SlowTurret : BaseTurret
             Instantiate(_bulletPrefab, _firePoint.position, Quaternion.identity);
         }
 
+
+        if (AudioManager.I != null) AudioManager.I.PlaySlowTurretFire();
     }
 }

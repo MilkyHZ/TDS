@@ -36,5 +36,7 @@ public class CannonTurret : BaseTurret
             bullet.HitRadius = _hitRadius;
             bullet.Damage = _damage;
         }
+     
+        if (AudioManager.I != null) AudioManager.I.PlayCannonFire();
     }
 }

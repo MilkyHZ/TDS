@@ -109,6 +109,8 @@ public class TurretPlacementPoint : MonoBehaviour, IPointerEnterHandler, IPointe
 
         SetRangeVisible(false);
 
+        if (AudioManager.I != null) AudioManager.I.PlayBuildTurret();
+
         return true;
     }
 
@@ -125,6 +127,8 @@ public class TurretPlacementPoint : MonoBehaviour, IPointerEnterHandler, IPointe
         _placedTurret.UpgradeToLevelMax();
         _placedTurret.transform.localScale *= 1.3f;
 
+        if (AudioManager.I != null) AudioManager.I.PlayUpgradeTurret();
+
         return true;
     }
 
@@ -136,6 +140,8 @@ public class TurretPlacementPoint : MonoBehaviour, IPointerEnterHandler, IPointe
 
         int refund = GetRefundAmount();
         if (CoinManager.I != null) CoinManager.I.AddCoin(refund);
+
+        if (AudioManager.I != null) AudioManager.I.PlaySellTurret();
 
         Destroy(_placedTurret.gameObject);
         _placedTurret = null;
