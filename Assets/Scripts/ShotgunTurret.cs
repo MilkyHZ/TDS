@@ -10,7 +10,7 @@ public class ShotgunTurret : BaseTurret
 
     protected override void InitVisual() => DrawCircle();
     protected override bool IsTargetInDetectionZone() => _dist <= _range;
-    protected override void FireWeapon()
+    protected override void OnFire()
     {
         if (_bulletPrefab == null || _firePoint == null) return;
 

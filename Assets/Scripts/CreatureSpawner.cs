@@ -4,23 +4,22 @@ using UnityEngine;
 
 public class CreatureSpawner : MonoBehaviour
 {
-    [SerializeField]
+    [SerializeField] 
     private WalkPath[] _walkPaths;
     [SerializeField]
     private Canvas _worldCanvas;
-    [SerializeField]
+    [SerializeField] 
     private Camera _mainCamera;
-
-    [SerializeField]
+    [SerializeField] 
     private HealthUI _healthUIPrefab;
-
-    [SerializeField]
+    [SerializeField] 
     private float _spawnInterval = 0.5f;
 
     private bool _isSpawning = false;
     public bool IsSpawning => _isSpawning;
 
     private int _activeCreatureCount = 0;
+    private Coroutine _spawnCoroutine;
 
     private void Awake()
     {
@@ -30,10 +29,23 @@ public class CreatureSpawner : MonoBehaviour
         }
     }
 
+    public void StopAndResetSpawner()
+    {
+        if (_spawnCoroutine != null)
+        {
+            StopCoroutine(_spawnCoroutine);
+            _spawnCoroutine = null;
+        }
+        _isSpawning = false;
+        _activeCreatureCount = 0;
+    }
+
     public void StartSpawning(RoundData roundData)
     {
-        if (roundData == null || _isSpawning) return;
-        StartCoroutine(SpawnRoundRoutine(roundData));
+        if (roundData == null) return;
+
+        StopAndResetSpawner();
+        _spawnCoroutine = StartCoroutine(SpawnRoundRoutine(roundData));
     }
 
     private IEnumerator SpawnRoundRoutine(RoundData roundData)
@@ -74,7 +86,10 @@ public class CreatureSpawner : MonoBehaviour
             );
 
             _activeCreatureCount++;
+
+            creature.Health.OnDeath -= OnCreatureDespawned;
             creature.Health.OnDeath += OnCreatureDespawned;
+
             creature.InitializePath(chosenPath, _worldCanvas, _mainCamera);
 
             if (_healthUIPrefab != null && _worldCanvas != null)
@@ -94,15 +109,25 @@ public class CreatureSpawner : MonoBehaviour
         }
 
         _isSpawning = false;
+
+        CheckWaveCompletion();
     }
 
     private void OnCreatureDespawned()
     {
         _activeCreatureCount--;
+        CheckWaveCompletion();
+    }
 
+    private void CheckWaveCompletion()
+    {
         if (_activeCreatureCount <= 0 && !_isSpawning)
         {
-            RoundManager.I.OnRoundCleared();
+            _activeCreatureCount = 0;
+            if (RoundManager.I != null)
+            {
+                RoundManager.I.OnRoundCleared();
+            }
         }
     }
 }

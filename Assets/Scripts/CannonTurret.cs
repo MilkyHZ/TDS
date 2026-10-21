@@ -2,15 +2,13 @@ using UnityEngine;
 
 public class CannonTurret : BaseTurret
 {
-    [Header("Cannon Splash Settings")]
+    [Header("Cannon Settings")]
     [SerializeField]
     private float _bulletSpeed = 50f;
     [SerializeField]
     private float _hitRadius = 1.2f;
     [SerializeField] 
-    private int _damage = 5;
-    [SerializeField] 
-    private int _pierceAmount = 3;
+    private int _damage = 10;
 
     protected override void InitVisual() => DrawCircle();
     protected override bool IsTargetInDetectionZone() => _dist <= _range;
@@ -18,11 +16,11 @@ public class CannonTurret : BaseTurret
     public override void UpgradeToLevelMax()
     {
         base.UpgradeToLevelMax();
-        _damage += 5;
-        _pierceAmount += 2;
+        _damage += 7;
+        _hitRadius *= 2f;
     }
 
-    protected override void FireWeapon()
+    protected override void OnFire()
     {
         if (_bulletPrefab == null || _firePoint == null) return;
 
@@ -37,7 +35,6 @@ public class CannonTurret : BaseTurret
             bullet.Speed = _bulletSpeed;
             bullet.HitRadius = _hitRadius;
             bullet.Damage = _damage;
-            bullet.PierceAmount = _pierceAmount;
         }
     }
 }

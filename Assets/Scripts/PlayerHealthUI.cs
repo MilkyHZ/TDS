@@ -1,15 +1,27 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerHealthUI : MonoBehaviour
 {
-    [SerializeField] private Image _hpVisual;
-    [SerializeField] private Image _ghostHpVisual;
-    [SerializeField] private float _lerpSpeed = 3f;
+    [SerializeField]
+    private Image _hpVisual;
+    [SerializeField]
+    private Image _ghostHpVisual;
+    [SerializeField]
+    private float _lerpSpeed = 3f;
 
-    [SerializeField] private HasHealth _playerHealth;
+    [Header("Damage Flash")]
+    [SerializeField]
+    private Image _redDamageOverlay;
+    [SerializeField]
+    private float _flashSpeed = 5f;
+
+    [SerializeField]
+    private HasHealth _playerHealth;
 
     private float _targetFill = 1f;
+    private Coroutine _flashCoroutine;
 
     private void Start()
     {
@@ -76,10 +88,48 @@ public class PlayerHealthUI : MonoBehaviour
     {
         if (max <= 0) return;
 
-        _targetFill = curHp / max;
+        float newFill = curHp / max;
+
+        // Flash red overlay if HP decreased
+        if (newFill < _targetFill)
+        {
+            TriggerRedFlash();
+        }
+
+        _targetFill = newFill;
         if (_hpVisual != null)
         {
             _hpVisual.fillAmount = _targetFill;
         }
+    }
+
+    private void TriggerRedFlash()
+    {
+        if (_redDamageOverlay == null) return;
+
+        if (_flashCoroutine != null)
+        {
+            StopCoroutine(_flashCoroutine);
+        }
+
+        _flashCoroutine = StartCoroutine(RedFlashRoutine());
+    }
+
+    private IEnumerator RedFlashRoutine()
+    {
+        Color c = _redDamageOverlay.color;
+        c.a = 0.6f;
+        _redDamageOverlay.color = c;
+
+        while (c.a > 0.01f)
+        {
+            c.a = Mathf.Lerp(c.a, 0f, Time.deltaTime * _flashSpeed);
+            _redDamageOverlay.color = c;
+            yield return null;
+        }
+
+        c.a = 0f;
+        _redDamageOverlay.color = c;
+        _flashCoroutine = null;
     }
 }

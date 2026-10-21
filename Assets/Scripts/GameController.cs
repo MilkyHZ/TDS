@@ -33,7 +33,16 @@ public class GameControler : MonoBehaviour
         _currentState?.Enter();
     }
 
-    public void StartGame() => ChangeState(new PlayingState());
+    public void StartGame()
+    {
+        ChangeState(new PlayingState());
+
+        if (RoundManager.I != null)
+        {
+            RoundManager.I.ResetRounds();
+        }
+    }
+
     public void PauseGame() => ChangeState(new PauseState());
     public void ResumeGame() => ChangeState(new PlayingState());
     public void WinGame() => ChangeState(new WinState());
@@ -42,11 +51,6 @@ public class GameControler : MonoBehaviour
     public void RestartGameWithoutReload()
     {
         Time.timeScale = 1.0f;
-
-        if (CoinManager.I != null)
-        {
-            CoinManager.I.CoinBank = 300;
-        }
 
         CreatureBehaviour[] activeCreatures = FindObjectsByType<CreatureBehaviour>(FindObjectsSortMode.None);
         foreach (var creature in activeCreatures)
@@ -74,6 +78,7 @@ public class GameControler : MonoBehaviour
 
         if (PlayerHealthManager.I != null)
         {
+            PlayerHealthManager.I.gameObject.SetActive(true);
             PlayerHealthManager.I.ResetHealth();
         }
 
@@ -91,6 +96,11 @@ public class GameControler : MonoBehaviour
         if (TurretNodeUIManager.I != null)
         {
             TurretNodeUIManager.I.CloseMenu();
+        }
+
+        if (CoinManager.I != null)
+        {
+            CoinManager.I.ResetCoins(300);
         }
 
         ChangeState(new PlayingState());

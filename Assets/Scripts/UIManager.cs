@@ -120,12 +120,13 @@ public class UIManager : MonoBehaviour
 
     private void OnClickPlay()
     {
-        ShowGameplayUI();
         if (GameControler.I != null)
         {
             GameControler.I.StartGame();
         }
+        ShowGameplayUI(); 
     }
+
 
     private void OnClickPause()
     {

@@ -3,14 +3,10 @@ using UnityEngine;
 public class BallistaTurret : BaseTurret
 {
     [Header("Ballista Settings")]
-    [SerializeField]
-    private float _bulletSpeed = 150f;
-    [SerializeField]
-    private float _hitRadius = .8f;
-    [SerializeField] 
-    private int _damage = 2;
-    [SerializeField] 
-    private int _pierceAmount = 3;
+    [SerializeField] private float _bulletSpeed = 300f;
+    [SerializeField] private float _hitRadius = 1f;
+    [SerializeField] private int _damage = 2;
+    [SerializeField] private int _pierceAmount = 3;
 
     protected override void InitVisual() => DrawCircle();
     protected override bool IsTargetInDetectionZone() => _dist <= _range;
@@ -18,11 +14,12 @@ public class BallistaTurret : BaseTurret
     public override void UpgradeToLevelMax()
     {
         base.UpgradeToLevelMax();
-        _damage += 3;          // High damage boost
-        _pierceAmount += 2;    // Pierces +2 additional enemies
+        _damage += 7;
+        _pierceAmount += 5;
+        _bulletSpeed += 100;
     }
 
-    protected override void FireWeapon()
+    protected override void OnFire()
     {
         if (_bulletPrefab == null || _firePoint == null) return;
 

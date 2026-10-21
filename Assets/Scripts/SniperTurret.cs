@@ -18,7 +18,7 @@ public class SniperTurret : BaseTurret
     protected override bool CanFireWeapon() => _alignmentDot >= _alignment;
     protected override void InitVisual() => DrawCone();
     protected override bool IsTargetInDetectionZone() => IsTargetInCone();
-    protected override void FireWeapon()
+    protected override void OnFire()
     {
         var bullet = Instantiate(_bulletPrefab, _firePoint.position, _firePoint.rotation);
         var bulletScript = bullet.GetComponent<TurretBulletBehaviour>();

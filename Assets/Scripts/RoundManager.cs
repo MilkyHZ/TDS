@@ -8,7 +8,8 @@ public class RoundManager : MonoBehaviour
     public float RoundTime = 3f;
     public int TotalRounds = -1;
 
-    [SerializeField] private float _roundMultiplier = 0.2f;
+    [SerializeField]
+    private float _roundMultiplier = 0.2f;
 
     private float _currentMultiplier;
     public float RoundMultiplier => _currentMultiplier;
@@ -35,19 +36,22 @@ public class RoundManager : MonoBehaviour
         }
     }
 
-    [SerializeField] private RoundData[] _roundData;
+    [SerializeField]
+    private RoundData[] _roundData;
     public RoundData[] RoundData => _roundData;
     public RoundData CurrentRoundData;
 
-    [SerializeField] private CreatureSpawner _spawner;
+    public int MaxRounds = 10;
+
+    [SerializeField]
+    private CreatureSpawner _spawner;
 
     public bool IsWaveInProgress { get; private set; } = false;
 
     public event Action<int, RoundData> OnRoundDataUpdated;
+    public event Action<int> OnWaveStarted;
 
     private void Awake() => I = this;
-
-    private void Start() => NextRound();
 
     public void ResetRounds()
     {
@@ -55,7 +59,7 @@ public class RoundManager : MonoBehaviour
 
         if (_spawner != null)
         {
-            _spawner.StopAllCoroutines();
+            _spawner.StopAndResetSpawner();
         }
 
         IsWaveInProgress = false;
@@ -73,6 +77,8 @@ public class RoundManager : MonoBehaviour
         CurrentRound++;
 
         IsWaveInProgress = true;
+
+        OnWaveStarted?.Invoke(TotalRounds + 1);
         OnRoundDataUpdated?.Invoke(TotalRounds + 1, CurrentRoundData);
 
         if (_spawner != null && CurrentRoundData != null)
@@ -83,8 +89,19 @@ public class RoundManager : MonoBehaviour
 
     public void OnRoundCleared()
     {
+        if (!IsWaveInProgress) return;
+
         IsWaveInProgress = false;
         OnRoundDataUpdated?.Invoke(TotalRounds + 1, CurrentRoundData);
+
+        if (TotalRounds + 1 >= MaxRounds)
+        {
+            if (GameControler.I != null)
+            {
+                GameControler.I.WinGame();
+            }
+            return;
+        }
 
         Invoke(nameof(NextRound), RoundTime);
     }

@@ -20,6 +20,5 @@ public class RoundData: ScriptableObject
 public struct SpawnedCreature
 {
     public CreatureBehaviour Type;
-    public Sprite PreviewIcon;
     public int SpawnCount;
 }

@@ -4,7 +4,15 @@ using UnityEngine.UI;
 
 public class RoundUI : MonoBehaviour
 {
-    [Header("Wave Info")]
+    [Header("Round Transition Splash")]
+    [SerializeField] 
+    private float _transitionTime = 2f;
+    [SerializeField] 
+    private GameObject _roundNumberPanel;
+    [SerializeField] 
+    private TextMeshProUGUI _txtRoundStartTitle;
+
+    [Header("Wave Info HUD")]
     [SerializeField] 
     private TextMeshProUGUI _txtWaveNumber;
     [SerializeField] 
@@ -17,14 +25,26 @@ public class RoundUI : MonoBehaviour
     private EnemyPreviewCard _enemyCardPrefab;
 
     [Header("Controls")]
-    [SerializeField]
-     private Button _btnNextWave;
+    [SerializeField] 
+    private Button _btnNextWave;
+
+    private float _splashEndTime = 0f;
+
+    [SerializeField, ReadOnly]
+    private bool _isSplashActive = false;
+
+    private int _lastBanneredWave = -1;
 
     private void Awake()
     {
         if (_btnNextWave != null)
         {
             _btnNextWave.onClick.AddListener(OnClickNextWave);
+        }
+
+        if (_roundNumberPanel != null)
+        {
+            _roundNumberPanel.SetActive(false);
         }
     }
 
@@ -33,9 +53,17 @@ public class RoundUI : MonoBehaviour
         if (RoundManager.I != null)
         {
             RoundManager.I.OnRoundDataUpdated += UpdateRoundUI;
+            RoundManager.I.OnWaveStarted += TriggerSplashBanner;
+
             if (RoundManager.I.CurrentRoundData != null)
             {
                 UpdateRoundUI(RoundManager.I.TotalRounds + 1, RoundManager.I.CurrentRoundData);
+            }
+
+            int currentWaveIndex = RoundManager.I.TotalRounds + 1;
+            if (RoundManager.I.IsWaveInProgress && _lastBanneredWave != currentWaveIndex)
+            {
+                TriggerSplashBanner(currentWaveIndex);
             }
         }
     }
@@ -45,6 +73,27 @@ public class RoundUI : MonoBehaviour
         if (RoundManager.I != null)
         {
             RoundManager.I.OnRoundDataUpdated -= UpdateRoundUI;
+            RoundManager.I.OnWaveStarted -= TriggerSplashBanner;
+        }
+    }
+
+    private void Update()
+    {
+        _isSplashActive = Time.unscaledTime < _splashEndTime;
+
+        if (_isSplashActive)
+        {
+            if (_roundNumberPanel != null && !_roundNumberPanel.activeSelf)
+            {
+                _roundNumberPanel.SetActive(true);
+            }
+        }
+        else
+        {
+            if (_roundNumberPanel != null && _roundNumberPanel.activeSelf)
+            {
+                _roundNumberPanel.SetActive(false);
+            }
         }
     }
 
@@ -73,8 +122,9 @@ public class RoundUI : MonoBehaviour
             {
                 foreach (var creature in roundData.Creatures)
                 {
+                    if (creature.Type == null) continue;
                     EnemyPreviewCard card = Instantiate(_enemyCardPrefab, _enemyCardsContainer);
-                    card.Setup(creature.PreviewIcon, creature.SpawnCount);
+                    card.Setup(creature.Type.PreviewIcon, creature.SpawnCount);
                 }
             }
         }
@@ -82,6 +132,23 @@ public class RoundUI : MonoBehaviour
         if (_btnNextWave != null)
         {
             _btnNextWave.interactable = !RoundManager.I.IsWaveInProgress;
+        }
+    }
+
+    private void TriggerSplashBanner(int waveNumber)
+    {
+        _lastBanneredWave = waveNumber;
+
+        if (_roundNumberPanel != null)
+        {
+            if (_txtRoundStartTitle != null)
+            {
+                _txtRoundStartTitle.text = $"WAVE {waveNumber}";
+            }
+
+            _splashEndTime = Time.unscaledTime + _transitionTime;
+
+            _roundNumberPanel.SetActive(true);
         }
     }
 

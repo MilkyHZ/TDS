@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -5,19 +6,18 @@ public class CoinManager : MonoBehaviour
 {
     public static CoinManager I;
 
-    [SerializeField]
+    [SerializeField] 
     private TextMeshProUGUI _coinText;
-    [SerializeField]
+    [SerializeField] 
     private RectTransform _coinRect;
     public RectTransform CoinRect => _coinRect;
 
-    [SerializeField]
+    [SerializeField] 
     private float _jumpHeight = 20f;
-    [SerializeField]
+    [SerializeField] 
     private float _lerpSpeed = 3f;
 
-    [SerializeField]
-    private int _coinBank = 300;
+    [SerializeField] private int _coinBank = 300;
     public int CoinBank
     {
         get { return _coinBank; }
@@ -28,9 +28,12 @@ public class CoinManager : MonoBehaviour
                 _displayedVal = _coinBank;
                 _coinBank = value;
                 ChangeValue();
+                OnCoinChanged?.Invoke(_coinBank);
             }
         }
     }
+
+    public event Action<int> OnCoinChanged;
 
     private int _displayedVal;
     private Vector3 _oldPos;
@@ -82,6 +85,31 @@ public class CoinManager : MonoBehaviour
     public void AddCoin(int amount = 10) => CoinBank += amount;
 
     public bool HasEnoughCoins(int amount) => CoinBank >= amount;
+
+    public void ResetCoins(int initialCoins = 300)
+    {
+        _coinBank = initialCoins;
+        _displayedVal = initialCoins;
+        _timer = 1f;
+
+        if (_coinText != null)
+        {
+            _coinText.text = _coinBank.ToString();
+        }
+
+        if (_coinRect != null)
+        {
+            _coinRect.position = _oldPos;
+        }
+
+        CoinPopup[] activePopups = FindObjectsByType<CoinPopup>(FindObjectsSortMode.None);
+        foreach (var popup in activePopups)
+        {
+            popup.Release(popup);
+        }
+
+        OnCoinChanged?.Invoke(_coinBank);
+    }
 
     public bool TrySpendCoins(int amount)
     {

@@ -2,6 +2,24 @@ using UnityEngine;
 
 public abstract class BaseTurret : MonoBehaviour
 {
+    [Header("Animation Settings")]
+    [SerializeField]
+    private string _fireTriggerParam = "Fire";
+
+    [Header("Visual Effects")]
+    [SerializeField]
+    private ParticleObject _attackParticlePrefab;
+
+    [Header("TurretImage")]
+    [SerializeField]
+    private Sprite _previewIcon;
+
+    [Header("Price Settings")]
+    [SerializeField]
+    private int _baseBuildCost = 100;
+    [SerializeField]
+    private int _baseUpgradeCost = 150;
+
     [Header("Detection Visual Settings")]
     [SerializeField]
     private GameObject _detection;
@@ -25,6 +43,8 @@ public abstract class BaseTurret : MonoBehaviour
     [SerializeField]
     protected float _fireInterval = 1f;
 
+    private Animator _animator;
+
     protected CreatureBehaviour _target;
     private Vector3 _dir;
     protected float _dist;
@@ -32,16 +52,26 @@ public abstract class BaseTurret : MonoBehaviour
     protected float _alignmentDot;
     protected bool _targetFollow = true;
 
+    public float AttackRange => _range;
+    public Sprite PreviewIcon => _previewIcon;
+    public int BaseBuildCost => _baseBuildCost;
+    public int BaseUpgradeCost => _baseUpgradeCost;
+
     public virtual void Start()
     {
+        _animator = GetComponent<Animator>();
+
         if (_detection != null)
         {
             _rangeRend = _detection.GetComponent<LineRenderer>();
+
             if (_rangeRend != null)
             {
                 _rangeRend.useWorldSpace = false;
             }
         }
+
+        ToggleRangeVisual(false);
 
         InitVisual();
     }
@@ -76,21 +106,40 @@ public abstract class BaseTurret : MonoBehaviour
         }
     }
 
-    // --- LEVEL 2 MAX UPGRADE METHOD ---
     public virtual void UpgradeToLevelMax()
     {
-        // 1. Boost Base Stats
-        _range *= 1.35f;           // +35% Attack Range
-        _fireInterval *= 0.65f;    // +35% Attack Speed (35% faster interval)
-        _rotSpeed *= 1.5f;         // +50% Rotation speed
+        _range *= 1.35f;
+        _fireInterval *= 0.65f;
+        _rotSpeed *= 1.5f;
 
-        // 2. Redraw Detection Visuals
         InitVisual();
     }
 
     protected virtual bool CanFireWeapon() => _alignmentDot >= 0.95f;
-    protected abstract void FireWeapon();
+
+    protected virtual void FireWeapon()
+    {
+        if (_animator != null)
+        {
+            _animator.SetTrigger(_fireTriggerParam);
+        }
+
+        OnFire();
+        PlayAttackEffect();
+    }
+
+    protected virtual void PlayAttackEffect()
+    {
+        if (_attackParticlePrefab != null && _firePoint != null)
+        {
+            GameplayFactory.I.GetEntity(_attackParticlePrefab, _firePoint.position, Quaternion.identity);
+        }
+    }
+
+    protected abstract void OnFire();
+
     protected abstract bool IsTargetInDetectionZone();
+
     protected abstract void InitVisual();
 
     private void AlignHead()
@@ -184,6 +233,24 @@ public abstract class BaseTurret : MonoBehaviour
     }
 
     #region Draw Visual
+
+    public void ToggleRangeVisual(bool show)
+    {
+        if (_detection != null)
+        {
+            _detection.SetActive(show);
+        }
+
+        if (_rangeRend != null)
+        {
+            _rangeRend.enabled = show;
+
+            if (show)
+            {
+                DrawCircle();
+            }
+        }
+    }
 
     protected void DrawCircle()
     {

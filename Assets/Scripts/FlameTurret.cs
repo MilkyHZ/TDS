@@ -8,7 +8,7 @@ public class FlameTurret : BaseTurret
 
     protected override void InitVisual() => DrawCone();
     protected override bool IsTargetInDetectionZone() => _dist <= _range;
-    protected override void FireWeapon()
+    protected override void OnFire()
     {
         var bullet = Instantiate(_bulletPrefab, _firePoint.position, _firePoint.rotation);
         var bulletScript = bullet.GetComponent<TurretBulletBehaviour>();

@@ -3,41 +3,59 @@ using UnityEngine;
 public class SlowTurret : BaseTurret
 {
     [Header("Frost / Slow Settings")]
-    [SerializeField] 
+    [SerializeField]
     private float _bulletSpeed = 50f;
     [SerializeField] 
-    private float _hitRadius = 1.5f;
-    [SerializeField]
     private int _damage = 1;
+
+    [Header("AoE Debuff Tweaks")]
     [SerializeField] 
-    private int _pierceAmount = 5;
+    private float _slowMultiplier = 0.5f;
+    [SerializeField] 
+    private float _slowDuration = 2.0f;
 
     protected override void InitVisual() => DrawCircle();
+
     protected override bool IsTargetInDetectionZone() => _dist <= _range;
+
+    protected override bool CanFireWeapon() => true;
 
     public override void UpgradeToLevelMax()
     {
         base.UpgradeToLevelMax();
-        _damage += 2;
-        _pierceAmount += 3;
+        _damage += 1;
+        _slowDuration += 1.0f;
     }
 
-    protected override void FireWeapon()
+    protected override void OnFire()
     {
-        if (_bulletPrefab == null || _firePoint == null) return;
+        CreatureBehaviour[] allCreatures = FindObjectsByType<CreatureBehaviour>(FindObjectsSortMode.None);
 
-        if (_bulletPrefab.TryGetComponent<TurretBulletBehaviour>(out var bulletComponent))
+        bool hitAnyEnemy = false;
+
+        foreach (CreatureBehaviour creature in allCreatures)
         {
-            TurretBulletBehaviour bullet = GameplayFactory.I.GetEntity(
-                bulletComponent,
-                _firePoint.position,
-                _head != null ? _head.rotation : Quaternion.identity
-            );
+            if (creature == null) continue;
 
-            bullet.Speed = _bulletSpeed;
-            bullet.HitRadius = _hitRadius;
-            bullet.Damage = _damage;
-            bullet.PierceAmount = _pierceAmount;
+            float distanceToCreature = Vector3.Distance(transform.position, creature.transform.position);
+            if (distanceToCreature <= _range)
+            {
+                hitAnyEnemy = true;
+
+                creature.ApplySlow(_slowMultiplier, _slowDuration);
+
+                if (creature.Health != null)
+                {
+                    creature.Health.TakeDamage(_damage);
+                }
+            }
         }
+
+
+        if (hitAnyEnemy && _bulletPrefab != null && _firePoint != null)
+        {
+            Instantiate(_bulletPrefab, _firePoint.position, Quaternion.identity);
+        }
+
     }
 }

@@ -31,6 +31,10 @@ public class HasHealth : MonoBehaviour
     public event Action<float, float> OnHealthChanged;
     public event Action OnDeath;
 
-    public void TakeDamage(int dmg = 1) => CurrentHp -= dmg;
-    public void ResetHealth() => _currentHp = _maxHp;
+    public virtual void TakeDamage(int dmg = 1) => CurrentHp -= dmg;
+    public void ResetHealth()
+    {
+        _currentHp = _maxHp;
+        OnHealthChanged?.Invoke(_currentHp, _maxHp);
+    }
 }
