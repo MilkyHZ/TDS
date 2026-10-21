@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: OVR_SlowTurret
+  m_Controller: {fileID: 9100000, guid: c23281650c1319b43b55d96513064a9a, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 22888b1e4b1d85c4a8444fd2f5387330, type: 2}
+    m_OverrideClip: {fileID: 7511326457953679717, guid: ed0aa466fba5cad4f844397aa25a3a32, type: 3}
+  - m_OriginalClip: {fileID: 7400000, guid: cbee9e742733ff24da3e9de6f96b374e, type: 2}
+    m_OverrideClip: {fileID: 7924874190333900760, guid: ed0aa466fba5cad4f844397aa25a3a32, type: 3}

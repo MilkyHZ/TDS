@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: OVR_Sprinter
+  m_Controller: {fileID: 9100000, guid: 9efd8e411fdb6004bb64012df90a50c3, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: cbee9e742733ff24da3e9de6f96b374e, type: 2}
+    m_OverrideClip: {fileID: -3513047240609468584, guid: 44359f77522878b46a4cb5d76aabd857, type: 3}
+  - m_OriginalClip: {fileID: 7400000, guid: 25704bcb4ef616044ad9a777aa24c9fd, type: 2}
+    m_OverrideClip: {fileID: -5720986445658738499, guid: 44359f77522878b46a4cb5d76aabd857, type: 3}
