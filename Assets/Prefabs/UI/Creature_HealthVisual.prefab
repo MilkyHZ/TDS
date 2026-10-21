@@ -129,7 +129,7 @@ MonoBehaviour:
   _hpVisual: {fileID: 221276342473066907}
   _ghostHpVisual: {fileID: 3711106262303407364}
   _lerpSpeed: 3
-  _offset: {x: 0, y: 2.5, z: 2.5}
+  _offset: {x: 0, y: 2.5, z: 1.5}
   _targetHealth: {fileID: 0}
   _followTarget: 1
 --- !u!1 &3863992750857881595
