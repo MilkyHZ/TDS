@@ -48,6 +48,7 @@ MonoBehaviour:
   _speed: 15
   _hitRadius: 0.8
   _dmg: 1
+  _pierceAmount: 1
   _lifeTime: 4
 --- !u!1 &8164856373411431325
 GameObject:
@@ -115,7 +116,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9305746a3bd41e649a62691c6c4044c2, type: 2}
+  - {fileID: 2100000, guid: 5c7e2135829578847bb2979ba1ee9534, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
