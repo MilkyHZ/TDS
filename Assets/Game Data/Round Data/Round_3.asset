@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RoundData
   Creatures:
   - Type: {fileID: 7097944854279728486, guid: 18c94e4ad076a7349b74f701709c33ac, type: 3}
+    PreviewIcon: {fileID: -102515234, guid: b6a6a452f6d63c543962a84dcb1097ae, type: 3}
     SpawnCount: 15
   - Type: {fileID: 7097944854279728486, guid: ae0f5961e30975c42b6890fe5ada60cd, type: 3}
+    PreviewIcon: {fileID: 942059372, guid: b6a6a452f6d63c543962a84dcb1097ae, type: 3}
     SpawnCount: 5

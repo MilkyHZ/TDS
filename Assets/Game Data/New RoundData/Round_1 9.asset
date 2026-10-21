@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Round_1 9
   m_EditorClassIdentifier: Assembly-CSharp::RoundData
   Creatures:
-  - Type: {fileID: 7097944854279728486, guid: a8d633bcc63233b40a7f21b249cd3403, type: 3}
-    SpawnCount: 30
+  - Type: {fileID: 7875972568697457834, guid: b256c5e0688c2a1468f127d47bdd8f00, type: 3}
+    SpawnCount: 20
   - Type: {fileID: 446688119670952089, guid: 038b46ca939c41740b8e30e101dd56dc, type: 3}
-    SpawnCount: 25
+    SpawnCount: 8
   - Type: {fileID: 6219038516639561789, guid: d9faac4fafcb04d4f8ff8027704bb5df, type: 3}
-    SpawnCount: 1
+    SpawnCount: 4
