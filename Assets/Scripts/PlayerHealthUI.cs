@@ -37,6 +37,10 @@ public class PlayerHealthUI : MonoBehaviour
     {
         BindHealthEvents();
         RefreshUI();
+
+        Color c = _redDamageOverlay.color;
+        c.a = 0f;
+        _redDamageOverlay.color = c;
     }
 
     private void OnDisable()
@@ -90,7 +94,6 @@ public class PlayerHealthUI : MonoBehaviour
 
         float newFill = curHp / max;
 
-        // Flash red overlay if HP decreased
         if (newFill < _targetFill)
         {
             TriggerRedFlash();
