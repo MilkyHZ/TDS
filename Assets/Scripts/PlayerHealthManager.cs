@@ -30,6 +30,8 @@ public class PlayerHealthManager : WallLayer
         {
             CameraShaker.I.Shake(_shakeDuration, _shakeMagnitude);
         }
+
+        if (AudioManager.I != null) AudioManager.I.PlayPlayerDamage();
     }
 
     public new void ResetHealth()

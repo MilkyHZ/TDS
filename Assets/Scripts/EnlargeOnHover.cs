@@ -1,18 +1,20 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class EnlargeOnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class EnlargeOnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     [Header("Scale Configurations")]
-    [SerializeField] private Vector3 _targetScale = new Vector3(1.1f, 1.1f, 1.1f);
-    [SerializeField] private float _scaleSpeed = 15f; 
+    [SerializeField] private float _hoverScaleMultiplier = 1.1f;
+    [SerializeField] private float _scaleSpeed = 15f;
 
     private Vector3 _initialScale;
+    private Vector3 _targetScale;
     private Vector3 _currentDestinationScale;
 
     private void Awake()
     {
         _initialScale = transform.localScale;
+        _targetScale = _initialScale * _hoverScaleMultiplier;
         _currentDestinationScale = _initialScale;
     }
 
@@ -35,5 +37,10 @@ public class EnlargeOnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitH
     public void OnPointerExit(PointerEventData eventData)
     {
         _currentDestinationScale = _initialScale;
+    }
+
+    public void OnPointerClick(PointerEventData eventData) 
+    {
+        if (AudioManager.I != null) AudioManager.I.PlayButtonClick();
     }
 }
